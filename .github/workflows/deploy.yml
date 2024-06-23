@@ -18,6 +18,7 @@ jobs:
         AWS_REGION: 'ap-northeast-2'
         EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
       run: |
+        ssh -i "MySite.pem" ubuntu@ec2-43-203-221-254.ap-northeast-2.compute.amazonaws.com
         sudo apt-get update
         git clone https://github.com/SinMoonGh/2024_franding_project_-.git
         
