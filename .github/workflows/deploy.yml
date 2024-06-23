@@ -80,7 +80,6 @@ jobs:
 
           # 포트 80 노출
           EXPOSE 80
-          EOT
         EOF
 
     - name: nginx.conf 파일 생성하기
@@ -98,8 +97,7 @@ jobs:
                   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
                   proxy_set_header X-Forwarded-Proto $scheme;
               }
-          }
-          EOT
+          }          
         EOF
 
     - name: nginx 이미지 빌드하기
