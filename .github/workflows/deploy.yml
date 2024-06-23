@@ -11,6 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Add SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/franding.pem
+        chmod 600 ~/.ssh/franding.pem
+  
+    - name: Add EC2 host to known_hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
     
     - name: Deploy to EC2
       env:
@@ -19,7 +28,5 @@ jobs:
         AWS_REGION: 'ap-northeast-2'
         EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
       run: |
-        ssh -i C:\Users\gnsdl\MySite.pem ubuntu@${{ secrets.EC2_HOST }}.ap-northeast-2.compute.amazonaws.com
-        sudo apt-get update
-        git clone https://github.com/SinMoonGh/2024_franding_project_-.git
+        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} "sudo apt-get update && git clone https://github.com/SinMoonGh/2024_franding_project_-.git"
         
