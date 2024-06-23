@@ -19,4 +19,5 @@ jobs:
         EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
       run: |
         sudo apt-get update
+        git clone https://github.com/SinMoonGh/2024_franding_project_-.git
         
