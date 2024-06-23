@@ -11,6 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install SSH client
+      run: sudo apt-get install -y openssh-client
+
     - name: Add SSH key
       run: |
         mkdir -p ~/.ssh
@@ -28,5 +34,15 @@ jobs:
         AWS_REGION: 'ap-northeast-2'
         EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
       run: |
-        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} "sudo apt-get update && git clone https://github.com/SinMoonGh/2024_franding_project_-.git"
-        
+        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          sudo apt-get update -y
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo apt-get update -y
+          sudo apt-get install -y docker-ce
+          sudo usermod -aG docker $USER
+          sudo systemctl enable docker
+          sudo systemctl start docker
+          git clone https://github.com/SinMoonGh/2024_franding_project_-.git
+        EOF
