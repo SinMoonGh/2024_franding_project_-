@@ -80,6 +80,7 @@ jobs:
 
           # 포트 80 노출
           EXPOSE 80
+          EOT
         EOF
 
     - name: nginx.conf 파일 생성하기
