@@ -82,8 +82,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}
           AWS_S3_REGION_NAME=${{ secrets.AWS_S3_REGION_NAME }}
-        EOF
-             
+        EOF             
 
     - name: franding 네트워크 생성하기
       run: |
