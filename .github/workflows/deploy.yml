@@ -43,7 +43,8 @@ jobs:
           sudo apt-get install -y docker-ce
           sudo usermod -aG docker $USER
           sudo systemctl enable docker
-          sudo systemctl start docker          
+          sudo systemctl start docker
+          docker --version          
         EOF
 
     - name: git clone 
@@ -80,7 +81,6 @@ jobs:
 
           # 포트 80 노출
           EXPOSE 80
-          EOT
         EOF
 
     - name: nginx.conf 파일 생성하기
@@ -108,22 +108,93 @@ jobs:
           cd ~/nginx
 
           # nginx 이미지가 이미 존재하는지 확인
-          if sudo docker image inspect my-nginx-image > /dev/null 2>&1; then
+          if sudo docker image inspect franding-nginx-img > /dev/null 2>&1; then
             echo "Docker image already exists. Skipping build."
           else
             sudo docker build -t franding-nginx-img:latest .  
           fi        
         EOF
 
+    - name: franding 네트워크 생성하기
+      run: |
+          ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            # Create a custom network
+            if sudo docker network inspect franding-network > /dev/null 2>&1; then
+              echo "Docker network already exists. Skipping creation."
+            else
+              sudo docker network create franding-network
+            fi        
+          EOF
+
     - name: nginx 컨테이너 실행하기
       run: |
         ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
           # Stop existing container if running
-          sudo docker stop franding-nginx-img || true
+          sudo docker stop franding-nginx-container || true
 
           # Remove existing container if exists
-          sudo docker rm franding-nginx-img || true
+          sudo docker rm franding-nginx-container || true
 
           # Run Docker container
-          sudo docker run -d -p 80:80 --name franding-nginx-container franding-nginx-img
+          sudo docker run -d -p 80:80 --name franding-nginx-container --network franding-network franding-nginx-img
+        EOF
+
+    - name: franding_django Dockerfile 생성하기
+      run: |
+        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          # francding_django 폴더 생성
+          mkdir -p ~/franding_django
+
+          # Copy Dockerfile and necessary files
+          cat <<EOT > ~/franding_django/Dockerfile
+          # Base image
+          FROM python:3.10-slim
+
+          # Set environment variables
+          ENV PYTHONDONTWRITEBYTECODE 1
+          ENV PYTHONUNBUFFERED 1
+
+          # Set work directory
+          WORKDIR /app
+
+          # Install dependencies
+          COPY requirements.txt /app/
+          RUN pip install --upgrade pip
+          RUN pip install -r requirements.txt
+
+          # Copy project
+          COPY . /app/
+
+          # Expose the port the app runs on
+          EXPOSE 8000
+
+          # Run the application
+          CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+        EOF
+    
+    - name: franding_django 이미지 빌드하기
+      run: |
+        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          cd ~/franding_django
+
+          # franding_django 이미지가 이미 존재하는지 확인
+          if sudo docker image inspect franding-django-img > /dev/null 2>&1; then
+            echo "Docker image already exists. Skipping build."
+          else
+            sudo docker build -t franding-django-img:latest .  
+          fi        
+        EOF
+
+
+    - name: franding_django 컨테이너 실행하기
+      run: |
+        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          # Stop existing container if running
+          sudo docker stop franding-django-container || true
+
+          # Remove existing container if exists
+          sudo docker rm franding-django-container || true
+
+          # Run Docker container
+          sudo docker run -d -p 8000:8000 --name franding-django-container --network franding-network franding-django-img
         EOF
