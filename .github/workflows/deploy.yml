@@ -58,31 +58,7 @@ jobs:
             echo "Directory does not exist. Cloning repository..."
             git clone https://github.com/SinMoonGh/2024_franding_project_-.git
           fi
-        EOF
-
-    
-
-    - name: nginx.conf 파일 생성하기
-      run: |
-        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          server {
-              listen       80;
-
-              location / {
-                  proxy_pass http://franding-container:8000;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-              }
-
-              error_page   500 502 503 504  /50x.html;
-              location = /50x.html {
-                  root   /usr/share/nginx/html;
-              }
-          }
-          EOT  
-        EOF    
+        EOF       
 
     - name: franding 네트워크 생성하기
       run: |
@@ -153,6 +129,25 @@ jobs:
 
           # Run Docker container
           sudo docker run -d -p 8000:8000 --name franding-container --network franding-network franding-django-img
+        EOF
+
+    - name: nginx.conf 파일 생성하기
+      run: |
+        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          # Copy nginx.conf and necessary files
+          cat <<EOT > ~/nginx/nginx.conf
+          server {
+              listen 80;
+
+              location / {
+                  proxy_pass http://franding-container:8000;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+          EOT  
         EOF
 
     - name: nginx Dockerfile 생성하기
