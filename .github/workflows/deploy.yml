@@ -57,7 +57,8 @@ jobs:
           else
             echo "Directory does not exist. Cloning repository..."
             git clone https://github.com/SinMoonGh/2024_franding_project_-.git
-          fi'             
+          fi'
+             
 
     - name: franding 네트워크 생성하기
       run: |
