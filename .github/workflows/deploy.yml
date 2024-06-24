@@ -69,9 +69,7 @@ jobs:
             else
               sudo docker network create franding-network
             fi        
-          EOF
-
-    
+          EOF    
 
     - name: franding_django Dockerfile 생성하기
       run: |
@@ -128,7 +126,7 @@ jobs:
           sudo docker rm franding-container || true
 
           # Run Docker container
-          sudo docker run -d -p 8000:8000 --name franding-container --network franding-network franding-django-img
+          sudo docker run -d -p 8000:8000 --name franding-container -v /home/ubuntu/2024_franding_project_-:/app --network franding-network franding-django-img:latest
         EOF
 
     - name: nginx.conf 파일 생성하기
