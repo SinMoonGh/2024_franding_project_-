@@ -9,7 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -220,21 +219,34 @@ jobs:
           sudo docker run -d -p 80:80 --name franding-nginx-container --network franding-network franding-nginx-img
         EOF
 
-    - name: Verify Redis is running
-      run: |
-        ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF' 
-          # Pull Redis image
-          sudo docker pull redis
+    # - name: Verify Redis is running
+    #   run: |
+    #     ssh -i ~/.ssh/franding.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF' 
+    #       # Pull Redis image
+    #       sudo docker pull redis
 
-          # Stop existing Redis container if running
-          sudo docker stop redis-container || true
+    #       # Stop existing Redis container if running
+    #       sudo docker stop redis-container || true
 
-          # Remove existing Redis container if exists
-          sudo docker rm redis-container || true
+    #       # Remove existing Redis container if exists
+    #       sudo docker rm redis-container || true
 
-          # Run Redis container
-          sudo docker run -d --name redis-container -p 6379:6379 redis
+    #       # Run Redis container
+    #       sudo docker run -d --name redis-container -p 6379:6379 redis
 
-          # 컨테이너 생성 확인
-          docker ps | grep redis-container
-        EOF
+    #       # 컨테이너 생성 확인
+    #       docker ps | grep redis-container
+    #     EOF
+    # - name: Setup SSH Keys
+    #   uses: webfactory/ssh-agent@v0.9.0
+    #   with:
+    #     ssh-private-key: ${{ secrets.SSH_KEY }}
+
+    # - name: Sync and Deploy
+    #   run: |
+    #     ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "
+    #     cd /home/ubuntu/franding
+    #     git pull        
+    #     sudo docker-compose down
+    #     sudo docker-compose up -d --build
+    #     "

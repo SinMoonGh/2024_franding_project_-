@@ -178,6 +178,7 @@ USE_TZ = False
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR/'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -191,18 +192,21 @@ AUTHENTICATION_BACKENDS = (
 )
 
 
-# SITE_ID = 1
+# 로컬 SITE
+# SITE_ID = 8
+# 배포 SITE
+SITE_ID = 16
 
-# SOCIALACCOUNT_LOGIN_ON_GET = True
-# LOGIN_REDIRECT_URL='mypage:add_user_info'
-# # LOGOUT_REDIRECT_URL='/'
-# LOGOUT_REDIRECT_URL = 'login'
-# # ACCOUNT_LOGOUT_REDIRECT_URL = reverse_lazy('accountapp:login')
-# ACCOUNT_LOGOUT_ON_GET = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+LOGIN_REDIRECT_URL='mypage:add_user_info'
+# LOGOUT_REDIRECT_URL='/'
+LOGOUT_REDIRECT_URL = 'login'
+# ACCOUNT_LOGOUT_REDIRECT_URL = reverse_lazy('accountapp:login')
+ACCOUNT_LOGOUT_ON_GET = True
 
 
-# MEDIA_URL='/media/'
-# MEDIA_ROOT=BASE_DIR/'media'
+MEDIA_URL='/media/'
+MEDIA_ROOT=BASE_DIR/'media'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 # ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1', '[::1]']
@@ -210,12 +214,13 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://52.79.153.140:16379',  # Redis 서버 위치
+        'LOCATION': 'redis://54.180.245.105:16379',  # Redis 서버 위치
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
+
 
 
 INTERNAL_IPS = [
